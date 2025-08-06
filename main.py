@@ -78,6 +78,7 @@ def get_trades_selenium(pages=5):
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
 
     all_trades = []
 
