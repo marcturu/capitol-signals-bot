@@ -2,7 +2,7 @@ name: Daily Capitol Trade Alert
 
 on:
   schedule:
-    - cron: '*/3 * * * *'
+    - cron: '45 15 * * *'
   workflow_dispatch:
 
 jobs:
