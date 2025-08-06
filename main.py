@@ -18,11 +18,11 @@ import re
 import os
 from dotenv import load_dotenv
 
-# === Cargar variables de entorno ===
-# Si existe .env, se cargan (local); si no, se usan las del entorno (GitHub Actions)
+# === Load env variables ===
+# .env for local execution; repository secrets for Github Actions execution
 load_dotenv()
 
-# === CONFIGURACIÓN ===
+# === Config ===
 DAYS_LIMIT = 15
 MIN_AMOUNT = 1000
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -33,8 +33,10 @@ if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
 
 application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
-# --- Funciones auxiliares ---
+# --- Aux functions ---
 
+# Parses the size string (e.g., "$1K-$5K") and returns the minimum amount as a float.
+# If the size is 'Undisclosed' or invalid, returns 0.
 def parse_size(size_str):
     if not size_str or 'Undisclosed' in size_str:
         return 0
@@ -54,6 +56,8 @@ def parse_size(size_str):
     except:
         return 0
 
+# Parses the publication date string and converts it to a datetime object.
+# Handles formats like "12:34 Today" or "12:34 Yesterday", or falls back to pandas parsing.
 def parse_pub_date(pub_date_raw):
     pub_date_raw = pub_date_raw.strip()
     
@@ -75,6 +79,8 @@ def parse_pub_date(pub_date_raw):
     except:
         return None
 
+# Scrapes trade data from Capitol Trades using Selenium.
+# Iterates through multiple pages, extracts trade info, and returns it as a pandas DataFrame.
 def get_trades_selenium(pages=5):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -141,6 +147,7 @@ def get_trades_selenium(pages=5):
         except:
             pass
 
+# Filters the trades DataFrame by date (last DAYS_LIMIT days) and minimum amount (MIN_AMOUNT).
 def filter_trades(df):
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     limit_date = datetime.now() - timedelta(days=DAYS_LIMIT)
@@ -148,11 +155,14 @@ def filter_trades(df):
     df = df[(df['Date'] >= limit_date) & (df['Amount'] >= MIN_AMOUNT)]
     return df
 
+# Cleans the ticker by removing the ":US" suffix if present.
 def clean_ticker(ticker):
     if ticker and ticker.endswith(":US"):
         return ticker.split(":")[0]
     return ticker
 
+# Downloads 6 months of price data for the given ticker and checks its trend using SMA50 and SMA100.
+# Returns the last price, SMA50, SMA100, and the trend ("Bullish", "Bearish", or "Neutral").
 def check_trend(ticker):
     try:
         data = yf.download(ticker, period='6mo', progress=False, auto_adjust=True)
@@ -188,12 +198,15 @@ def check_trend(ticker):
         print(f"Error getting trend for {ticker}: {e}")
         return None
 
+# Checks if the given trend info indicates a bullish trend.
 def is_bullish(trend_info):
     return trend_info and trend_info.get("trend") == "Bullish"
 
+# Checks if the given trend info indicates a bearish trend.
 def is_bearish(trend_info):
     return trend_info and trend_info.get("trend") == "Bearish"
 
+# Sends a formatted alert message to a Telegram chat with trade opportunities and trend info.
 async def send_alert(trades):
     if trades.empty:
         message = "No new opportunities based on Capitol Trades."
