@@ -223,7 +223,7 @@ async def send_alert(trades):
                 f"\n✅ {ticker} ({type_upper}) by {company}"
                 f"\n👤 Politician: {politician}"
                 f"\n📅 Trade Date: {row['Date'].date()}"
-                f"\n🗓️ Publication Date: {row['PublicationDate'].strftime('%d/%m/%Y %H:%M') if pd.notnull(row['PublicationDate']) else 'N/A'}"
+                f"\n🗓️ Publication Date: {row['PublicationDate'].date() if pd.notnull(row['PublicationDate']) else 'N/A'}"
                 f"\n💰 Amount: ${row['Amount']:,.0f}"
             )
 
