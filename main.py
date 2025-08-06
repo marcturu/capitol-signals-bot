@@ -12,23 +12,26 @@ from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
+# === Cargar variables de entorno ===
+# Si existe .env, se cargan (local); si no, se usan las del entorno (GitHub Actions)
 load_dotenv()
 
-# === CONFIGURATION ===
+# === CONFIGURACIÓN ===
 DAYS_LIMIT = 15
 MIN_AMOUNT = 1000
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
+if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
+    raise ValueError("Faltan las variables TELEGRAM_TOKEN o TELEGRAM_CHAT_ID.")
+
 bot = Bot(token=TELEGRAM_TOKEN)
 
-# --- Functions ---
+# --- Funciones auxiliares ---
 
-# Converts a size string like '5K' or '1.2K-3K' into a float representing the minimum value.
-# Returns 0 if the size is undisclosed or cannot be parsed.
 def parse_size(size_str):
     if not size_str or 'Undisclosed' in size_str:
         return 0
@@ -51,7 +54,6 @@ def parse_size(size_str):
 def parse_pub_date(pub_date_raw):
     pub_date_raw = pub_date_raw.strip()
     
-    # Caso especial: contiene hora y Today/Yesterday
     if re.match(r'^\d{1,2}:\d{2}\s+(Today|Yesterday)$', pub_date_raw, re.IGNORECASE):
         time_str, day_word = pub_date_raw.split()
         time_part = datetime.strptime(time_str, "%H:%M").time()
@@ -65,14 +67,11 @@ def parse_pub_date(pub_date_raw):
         
         return datetime.combine(date_part, time_part)
 
-    # Intento normal
     try:
         return pd.to_datetime(pub_date_raw, dayfirst=True)
     except:
         return None
 
-# Scrapes trade data from "https://www.capitoltrades.com/trades" using Selenium.
-# Returns a pandas DataFrame with columns: Date, Politician, Company, Amount, Type, and Ticker.
 def get_trades_selenium(pages=5):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -88,7 +87,7 @@ def get_trades_selenium(pages=5):
         for page_num in range(1, pages + 1):
             url = f"https://www.capitoltrades.com/trades?sortBy=-txDate&page={page_num}"
             driver.get(url)
-            time.sleep(7)  # espera que cargue la página
+            time.sleep(7)
 
             rows = driver.find_elements(By.CSS_SELECTOR, "tr.border-b.h-14.border-primary-15")
 
@@ -108,7 +107,6 @@ def get_trades_selenium(pages=5):
                     date_raw = cols[3].text.strip().replace('\n', ' ')
                     try:
                         date = pd.to_datetime(date_raw, dayfirst=True)
-                        # Skip dates in the future
                         if date > datetime.now():
                             continue
                     except:
@@ -136,8 +134,6 @@ def get_trades_selenium(pages=5):
         except:
             pass
 
-# Filters the trades DataFrame to keep only trades within the last DAYS_LIMIT days
-# and with an Amount greater or equal to MIN_AMOUNT.
 def filter_trades(df):
     df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
     limit_date = datetime.now() - timedelta(days=DAYS_LIMIT)
@@ -145,18 +141,11 @@ def filter_trades(df):
     df = df[(df['Date'] >= limit_date) & (df['Amount'] >= MIN_AMOUNT)]
     return df
 
-
-# Cleans the ticker string by removing the ':US' suffix if present.
 def clean_ticker(ticker):
     if ticker and ticker.endswith(":US"):
         return ticker.split(":")[0]
     return ticker
 
-
-# Downloads 6 months of price data for a given ticker using yfinance.
-# Calculates the 50-day and 100-day simple moving averages (SMA).
-# Determines the trend based on the relationship between current price and SMAs:
-# returns 'Bullish', 'Bearish', or 'Neutral'.
 def check_trend(ticker):
     try:
         data = yf.download(ticker, period='6mo', progress=False)
@@ -192,19 +181,12 @@ def check_trend(ticker):
         print(f"Error getting trend for {ticker}: {e}")
         return None
 
-
-# Returns True if the trend info indicates a 'Bullish' trend.
 def is_bullish(trend_info):
     return trend_info and trend_info.get("trend") == "Bullish"
 
-
-# Returns True if the trend info indicates a 'Bearish' trend.
 def is_bearish(trend_info):
     return trend_info and trend_info.get("trend") == "Bearish"
 
-
-# Sends a Telegram message alert with trade opportunities.
-# Includes ticker, trade type, politician, trade date, amount, and trend info.
 async def send_alert(trades):
     if trades.empty:
         message = "No new opportunities based on Capitol Trades."
@@ -241,10 +223,8 @@ async def main():
     print("Filtered data:")
     print(filtered_df)
 
-    # Get trends for each ticker
     filtered_df['Trend'] = filtered_df['Ticker'].apply(lambda x: check_trend(clean_ticker(x)))
 
-    # Filter bullish buys and bearish sells
     bullish_buys = filtered_df[(filtered_df['Type'] == 'buy') & (filtered_df['Trend'].apply(is_bullish))]
     bearish_sells = filtered_df[(filtered_df['Type'] == 'sell') & (filtered_df['Trend'].apply(is_bearish))]
 
