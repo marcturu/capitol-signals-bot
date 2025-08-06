@@ -2,8 +2,8 @@ name: Daily Capitol Trade Alert
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # 09:00 CET
-  workflow_dispatch: 
+    - cron: '0 8 * * *'  # 09:00 CET en horario de invierno
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -22,23 +22,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install chromedriver-autoinstaller  # respaldo por si falla webdriver_manager
 
-      - name: Install Chrome and ChromeDriver
+      - name: Install Chrome dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-          # Instalar chromedriver (usa misma versión de Chrome)
-          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9]+' | head -1)
-          DRIVER_VERSION=$(wget -qO- "https://chromedriver.storage.googleapis.com/LATEST_RELEASE")
-          wget https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-
-      - name: Set CHROME_BIN env
-        run: echo "CHROME_BIN=$(which google-chrome)" >> $GITHUB_ENV
+          sudo apt-get install -y \
+            libnss3 \
+            libgconf-2-4 \
+            libxi6 \
+            libxcursor1 \
+            libxdamage1 \
+            libxrandr2 \
+            libasound2 \
+            libatk1.0-0 \
+            libatk-bridge2.0-0 \
+            libxkbcommon0
 
       - name: Run script
         env:
