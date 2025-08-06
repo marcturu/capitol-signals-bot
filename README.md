@@ -1,1 +1,158 @@
-# CapitolTradeTracker
+# 📊 Capitol Trades Alert Bot
+
+This project scrapes **US politicians' stock trades** from [CapitolTrades](https://www.capitoltrades.com), analyzes the price trend of the traded companies using **moving averages**, and sends a **daily alert on Telegram** with the most relevant opportunities.
+
+---
+
+## ✅ Features
+- Scrapes the latest trades from **CapitolTrades** using **Selenium**.
+- Filters trades based on:
+  - Minimum amount (**$1,000 by default**).
+  - Last **15 days** of activity.
+- Retrieves **price trend** using **Yahoo Finance**:
+  - Calculates **SMA50** and **SMA100**.
+  - Classifies as **Bullish**, **Bearish**, or **Neutral**.
+- Sends a **Telegram alert** with:
+  - Company & Ticker.
+  - Politician name.
+  - Trade date & publication date.
+  - Trade type (buy/sell).
+  - Trend analysis.
+
+---
+
+## 🛠 How It Works
+1. The script uses **Selenium** to scrape recent trades from CapitolTrades.
+2. Filters trades by:
+   - Last `15` days.
+   - Minimum amount: `$1,000`.
+3. For each ticker:
+   - Fetches **6 months** of historical prices from Yahoo Finance.
+   - Calculates **SMA50** and **SMA100**.
+   - Detects **Bullish** (Price > SMA50 > SMA100) or **Bearish** trends.
+4. Sends a formatted **Telegram alert**.
+
+---
+
+## 📦 Installation & Setup (Local)
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/marcturu/CapitolTradeTracker.git
+cd CapitolTradeTracker
+```
+### 2. Install dependencies
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+### 3. Set environment variables in a new .env file
+```ini
+TELEGRAM_TOKEN=your_telegram_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+```
+#### How to get these values?
+##### Get your bot token via _BotFather_. Get your chat id via _userinfobot_  
+### 4. Run the script manually  
+```bash
+python main.py
+```
+
+--- 
+## ⚡ Automate with GitHub Actions (Daily Execution)
+
+This project includes a **GitHub Actions workflow** that runs the script **every day at 09:00 CET (Madrid time)**.  
+- Runs the script automatically in the cloud (no need to keep your PC on).
+- Installs **Python**, **Google Chrome**, and **ChromeDriver**.
+- Executes the script with secure credentials stored in **GitHub Secrets**.  
+
+### 📌 Setup Steps:
+
+1. **Push your code to your GitHub repository**.
+2. Go to:  
+   **Settings → Secrets and variables → Actions**  
+   and add the following:
+   - `TELEGRAM_TOKEN` → Your Telegram bot token.
+   - `TELEGRAM_CHAT_ID` → Your Telegram chat id.
+3. Make sure the workflow file exists in your repository at:
+
+   `.github/workflows/daily.yml`
+
+   > **Note:**  
+   > Create the `.github/workflows/` folder if it doesn't exist,  
+   > then add the `daily.yml` workflow file with the content below.
+   
+The workflow is scheduled to run **every day at 09:00 Madrid time (07:00 UTC)**.
+
+```yaml
+name: Daily Capitol Trade Alert
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Chrome and ChromeDriver
+        run: |
+          sudo apt-get update![Captura de pantalla 2025-08-06 183702](https://github.com/user-attachments/assets/15f9f351-9e3d-4465-96dc-e64e097f06be)
+
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          # Instalar chromedriver compatible
+          DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+          wget https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+
+      - name: Set CHROME_BIN env
+        run: echo "CHROME_BIN=$(which google-chrome)" >> $GITHUB_ENV
+
+      - name: Run script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python main.py
+```
+
+---
+
+## 📷 Examples:  
+
+### CapitolTradeTracker Bot:   
+![CapitolTradeTrackerBot](https://github.com/user-attachments/assets/15dac3cd-6bce-4cee-a44b-55acf4d4dd5d)
+
+### CapitolTrades:  
+![CapitolTrades](https://github.com/user-attachments/assets/a34e3595-a3c8-43af-99bc-85a9d628b9b0)  
+
+### YahooFinance:
+![YahooFinance](https://github.com/user-attachments/assets/44c0840b-c7fa-47c4-9f09-121f03d2d453)  
+
+---
+
+## ⚖️ License & Copyright
+
+© 2025 Marc Turu Roca. All rights reserved.
+
+This project and its contents are the exclusive intellectual property of Marc Turu Roca.  
+All rights reserved. No part of this project may be copied, modified, distributed, or used without prior written permission from the author.  
