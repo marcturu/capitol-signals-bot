@@ -1,14 +1,17 @@
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
+from telegram.ext import ApplicationBuilder
 import yfinance as yf
 import asyncio
 from telegram import Bot
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
@@ -28,7 +31,7 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
     raise ValueError("Faltan las variables TELEGRAM_TOKEN o TELEGRAM_CHAT_ID.")
 
-bot = Bot(token=TELEGRAM_TOKEN)
+application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
 # --- Funciones auxiliares ---
 
@@ -78,6 +81,9 @@ def get_trades_selenium(pages=5):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--remote-debugging-port=9222")
 
     all_trades = []
 
@@ -87,9 +93,10 @@ def get_trades_selenium(pages=5):
         for page_num in range(1, pages + 1):
             url = f"https://www.capitoltrades.com/trades?sortBy=-txDate&page={page_num}"
             driver.get(url)
-            time.sleep(7)
 
-            rows = driver.find_elements(By.CSS_SELECTOR, "tr.border-b.h-14.border-primary-15")
+            rows = WebDriverWait(driver, 15).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "tr.border-b.h-14.border-primary-15"))
+            )
 
             for row in rows:
                 cols = row.find_elements(By.TAG_NAME, "td")
@@ -148,7 +155,7 @@ def clean_ticker(ticker):
 
 def check_trend(ticker):
     try:
-        data = yf.download(ticker, period='6mo', progress=False)
+        data = yf.download(ticker, period='6mo', progress=False, auto_adjust=True)
         if data.empty:
             print(f"No data for {ticker}")
             return None
@@ -212,7 +219,8 @@ async def send_alert(trades):
                     f"\n📊 Price: {trend_info['price']:.2f} | SMA50: {trend_info['sma50']:.2f} | SMA100: {trend_info['sma100']:.2f}"
                     f"\n📈 Trend: {trend_info['trend']}\n"
                 )
-    await bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+
+    await application.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
 
 async def main():
     df = get_trades_selenium()
