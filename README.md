@@ -1,5 +1,7 @@
 # 📊 Capitol Trades Alert Bot
 
+<sub>🗓️ Developed in August 2025</sup>  
+
 This project scrapes **US politicians' stock trades** from [CapitolTrades](https://www.capitoltrades.com), analyzes the price trend of the traded companies using **moving averages**, and sends a **daily alert on Telegram** with the most relevant opportunities.
 
 ---
