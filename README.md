@@ -46,7 +46,8 @@ cd CapitolTradeTracker
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-### 3. Set environment variables in a new .env file
+### 3. Set environment variables  
+Create a .env file in the project root with:  
 ```ini
 TELEGRAM_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
