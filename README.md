@@ -21,7 +21,7 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 
 ---
 
-## 🛠 How It Works
+## ❓ How It Works
 1. The script uses **Selenium** to scrape recent trades from CapitolTrades.
 2. Filters trades by:
    - Last `15` days.
@@ -34,7 +34,7 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 
 ---
 
-## 📦 Installation & Setup (Local)
+## 🛠 Installation & Setup (Local)
 
 ### 1. Clone the repository
 ```bash
@@ -51,8 +51,9 @@ pip install -r requirements.txt
 TELEGRAM_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_chat_id
 ```
-#### How to get these values?
-##### Get your bot token via _BotFather_. Get your chat id via _userinfobot_  
+> **Note:**  
+> Get your bot token via _BotFather_.  
+> Get your chat id via _userinfobot_  
 ### 4. Run the script manually  
 ```bash
 python main.py
