@@ -9,30 +9,17 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 ## ✅ Features
 - Scrapes the latest trades from **CapitolTrades** using **Selenium**.
 - Filters trades based on:
-  - Minimum amount (**$1,000 by default**).
-  - Last **15 days** of activity.
+  - Minimum amount (`$1,000` by default).
+  - Last `15 days` of activity.
 - Retrieves **price trend** using **Yahoo Finance**:
   - Calculates **SMA50** and **SMA100**.
-  - Classifies as **Bullish**, **Bearish**, or **Neutral**.
+  - Classifies as **Bullish**, **Bearish**, or **Neutral** trends.
 - Sends a **Telegram alert** with:
   - Company & Ticker.
   - Politician name.
   - Trade date & publication date.
   - Trade type (buy/sell).
   - Trend analysis.
-
----
-
-## ❓ How It Works
-1. The script uses **Selenium** to scrape recent trades from CapitolTrades.
-2. Filters trades by:
-   - Last `15` days.
-   - Minimum amount: `$1,000`.
-3. For each ticker:
-   - Fetches **6 months** of historical prices from Yahoo Finance.
-   - Calculates **SMA50** and **SMA100**.
-   - Detects **Bullish** (Price > SMA50 > SMA100) or **Bearish** trends.
-4. Sends a formatted **Telegram alert**.
 
 ---
 
@@ -65,7 +52,7 @@ python main.py
 --- 
 ## ⚡ Automate with GitHub Actions (Daily Execution)
 
-This project includes a **GitHub Actions workflow** that runs the script **every day at 09:00 CET (Madrid time)**.  
+This project includes a **GitHub Actions workflow** that runs the script **every day at 09:00 CET (7:00 UTC)**.  
 - Runs the script automatically in the cloud (no need to keep your PC on).
 - Installs **Python**, **Google Chrome**, and **ChromeDriver**.
 - Executes the script with secure credentials stored in **GitHub Secrets**.  
@@ -85,8 +72,6 @@ This project includes a **GitHub Actions workflow** that runs the script **every
    > **Note:**  
    > Create the `.github/workflows/` folder if it doesn't exist,  
    > then add the `daily.yml` workflow file with the content below.
-   
-The workflow is scheduled to run **every day at 09:00 Madrid time (07:00 UTC)**.
 
 ```yaml
 name: Daily Capitol Trade Alert
