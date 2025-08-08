@@ -209,31 +209,85 @@ def is_bearish(trend_info):
 # Sends a formatted alert message to a Telegram chat with trade opportunities and trend info.
 async def send_alert(trades):
     if trades.empty:
-        message = "No new opportunities based on Capitol Trades."
-    else:
-        message = "📊 Opportunities detected:\n"
-        for _, row in trades.iterrows():
-            ticker = row['Ticker'] if pd.notnull(row['Ticker']) else "N/A"
-            type_upper = row['Type'].upper()
-            company = row['Company']
-            politician = row['Politician']
-            trend_info = row['Trend']
+        await application.bot.send_message(
+            chat_id=TELEGRAM_CHAT_ID, 
+            text="No new opportunities based on Capitol Trades."
+        )
+        return
+    
+    total_ops = len(trades)
 
-            message += (
-                f"\n✅ {ticker} ({type_upper}) by {company}"
-                f"\n👤 Politician: {politician}"
-                f"\n📅 Trade Date: {row['Date'].date()}"
-                f"\n🗓️ Publication Date: {row['PublicationDate'].date() if pd.notnull(row['PublicationDate']) else 'N/A'}"
-                f"\n💰 Amount: ${row['Amount']:,.0f}"
+    # Copy of the original Trend
+    trades['TrendFull'] = trades['Trend']
+
+    # Aux column just with "Bullish", "Bearish" or "Neutral"
+    trades['TrendLabel'] = trades['Trend'].apply(lambda x: x['trend'] if isinstance(x, dict) else None)
+
+    # Group to count repetitions
+    trades_grouped = (
+        trades.groupby(['Politician', 'Ticker', 'Date', 'Amount', 'Type', 'Company', 'PublicationDate', 'TrendLabel'])
+            .size()
+            .reset_index(name='Repetitions')
+    )
+
+    # Recover original Trend for the message
+    trades_grouped['Trend'] = trades_grouped.apply(
+        lambda row: trades.loc[
+            (trades['Politician'] == row['Politician']) &
+            (trades['Ticker'] == row['Ticker']) &
+            (trades['Date'] == row['Date']) &
+            (trades['Amount'] == row['Amount']) &
+            (trades['Type'] == row['Type']) &
+            (trades['Company'] == row['Company']) &
+            (trades['PublicationDate'] == row['PublicationDate']),
+            'TrendFull'
+        ].iloc[0],
+        axis=1
+    )
+
+    message = "📊 Opportunities detected (Total trades: {total_ops}):\n"
+    messages = []
+    counter = 1
+
+    for _, row in trades_grouped.iterrows():
+        ticker = row['Ticker'] if pd.notnull(row['Ticker']) else "N/A"
+        type_upper = row['Type'].upper()
+        company = row['Company']
+        politician = row['Politician']
+        trend_info = row['Trend']
+
+        trade_text = (
+            f"\n{counter}️⃣ {ticker} ({type_upper}) by {company}"
+            f"\n👤 Politician: {politician}"
+            f"\n📅 Trade Date: {row['Date'].date()}"
+            f"\n🗓️ Publication Date: {row['PublicationDate'].date() if pd.notnull(row['PublicationDate']) else 'N/A'}"
+            f"\n💰 Amount: ${row['Amount']:,.0f}"
+        )
+
+        if trend_info:
+            trade_text += (
+                f"\n📊 Price: {trend_info['price']:.2f} | SMA50: {trend_info['sma50']:.2f} | SMA100: {trend_info['sma100']:.2f}"
+                f"\n📈 Trend: {trend_info['trend']}\n"
             )
 
-            if trend_info:
-                message += (
-                    f"\n📊 Price: {trend_info['price']:.2f} | SMA50: {trend_info['sma50']:.2f} | SMA100: {trend_info['sma100']:.2f}"
-                    f"\n📈 Trend: {trend_info['trend']}\n"
-                )
+        if row['Repetitions'] > 1:
+            trade_text += f"\n🔁 Repeated {row['Repetitions']} times"
+        
+        trade_text += "\n"
+        counter += 1
 
-    await application.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+        if len(message) + len(trade_text) > 4000:  # Telegram has a lenth limit for its messages
+            messages.append(message)
+            message = trade_text
+        else:
+            message += trade_text
+
+    if message:
+        messages.append(message)
+
+    # Enviar todos los mensajes en orden
+    for msg in messages:
+        await application.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
 
 async def main():
     df = get_trades_selenium()
@@ -244,7 +298,9 @@ async def main():
     print("Filtered data:")
     print(filtered_df)
 
-    filtered_df['Trend'] = filtered_df['Ticker'].apply(lambda x: check_trend(clean_ticker(x)))
+    filtered_df['Trend'] = filtered_df['Ticker'].apply(
+        lambda x: check_trend(clean_ticker(x)) if pd.notnull(x) and x != "N/A" else None
+    )
 
     bullish_buys = filtered_df[(filtered_df['Type'] == 'buy') & (filtered_df['Trend'].apply(is_bullish))]
     bearish_sells = filtered_df[(filtered_df['Type'] == 'sell') & (filtered_df['Trend'].apply(is_bearish))]
