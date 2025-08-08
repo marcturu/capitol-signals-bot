@@ -126,7 +126,7 @@ jobs:
 
 ---
 
-## 📷 Examples:  
+## 📷 Screenshots  
 
 ### CapitolTradeTracker Bot:   
 ![CapitolTradeTrackerBot](https://github.com/user-attachments/assets/15dac3cd-6bce-4cee-a44b-55acf4d4dd5d)
