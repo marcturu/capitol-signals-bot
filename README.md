@@ -134,7 +134,7 @@ jobs:
 ### Capitol Trades website:  
 ![CapitolTrades](https://github.com/user-attachments/assets/a34e3595-a3c8-43af-99bc-85a9d628b9b0)  
 -
-### YahooFinance:
+### YahooFinance (META Example):
 ![YahooFinance](https://github.com/user-attachments/assets/44c0840b-c7fa-47c4-9f09-121f03d2d453)  
 
 ---
