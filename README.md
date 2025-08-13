@@ -131,7 +131,7 @@ jobs:
 ### CapitolTradeTracker Bot:   
 ![CapitolTradeTrackerBot](https://github.com/user-attachments/assets/15dac3cd-6bce-4cee-a44b-55acf4d4dd5d)
 -
-### CapitolTrades:  
+### Capitol Trades website:  
 ![CapitolTrades](https://github.com/user-attachments/assets/a34e3595-a3c8-43af-99bc-85a9d628b9b0)  
 -
 ### YahooFinance:
