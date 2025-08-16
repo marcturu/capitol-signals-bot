@@ -33,6 +33,13 @@ if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
 
 application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
+TICKER_MAP = {
+    "BRK/B": "BRK-B",       
+    "BRK.A": "BRK-A",       
+    "ABB": "ABBN.SW",      
+    "US TREASURY BILLS": None,  
+}
+
 # --- Aux functions ---
 
 # Parses the size string (e.g., "$1K-$5K") and returns the minimum amount as a float.
@@ -155,16 +162,25 @@ def filter_trades(df):
     df = df[(df['Date'] >= limit_date) & (df['Amount'] >= MIN_AMOUNT)]
     return df
 
-# Cleans the ticker by removing the ":US" suffix if present.
+# Cleans the ticker by removing the ":US" suffix if present or using the RCIKER_MAP corrections.
 def clean_ticker(ticker):
-    if ticker and ticker.endswith(":US"):
-        return ticker.split(":")[0]
+    if not ticker:
+        return None
+    ticker = ticker.replace(":US", "").strip()
+
+    # Si el ticker está en el mapeo, usar la conversión
+    if ticker in TICKER_MAP:
+        return TICKER_MAP[ticker]
+
     return ticker
 
 # Downloads 6 months of price data for the given ticker and checks its trend using SMA50 and SMA100.
 # Returns the last price, SMA50, SMA100, and the trend ("Bullish", "Bearish", or "Neutral").
 def check_trend(ticker):
     try:
+        if not ticker:
+            return None
+        
         data = yf.download(ticker, period='6mo', progress=False, auto_adjust=True)
         if data.empty:
             print(f"No data for {ticker}")
@@ -245,7 +261,7 @@ async def send_alert(trades):
         axis=1
     )
 
-    message = "📊 Opportunities detected (Total trades: {total_ops}):\n"
+    message = f"📊 Opportunities detected (Total trades: {total_ops}):\n"
     messages = []
     counter = 1
 
@@ -257,7 +273,7 @@ async def send_alert(trades):
         trend_info = row['Trend']
 
         trade_text = (
-            f"\n{counter}️⃣ {ticker} ({type_upper}) by {company}"
+            f"\n{counter}️⃣ {ticker} ({type_upper}) - {company}"
             f"\n👤 Politician: {politician}"
             f"\n📅 Trade Date: {row['Date'].date()}"
             f"\n🗓️ Publication Date: {row['PublicationDate'].date() if pd.notnull(row['PublicationDate']) else 'N/A'}"
