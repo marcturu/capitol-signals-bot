@@ -139,7 +139,7 @@ jobs:
 
 ---
 
-## ⚖️ License & Copyright
+## ⚖️ Copyright & License
 
 © 2025 Marc Turu Roca. All rights reserved.
 
