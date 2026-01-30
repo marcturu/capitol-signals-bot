@@ -128,17 +128,17 @@ jobs:
 
 ## 📷 Screenshots  
 
-### CapitolTradeTracker Bot:   
-![CapitolTradeTrackerBot](https://github.com/user-attachments/assets/15dac3cd-6bce-4cee-a44b-55acf4d4dd5d)
+### CapitolTrades Telegram Bot:   
+![CapitolTradesTelegramBot](screenshots/capitol_trades_telegram_bot.jpg)
 -
 ### CapitolTrades website:  
-![CapitolTrades](https://github.com/user-attachments/assets/a34e3595-a3c8-43af-99bc-85a9d628b9b0)  
+![CapitolTradesWebsite](screenshots/capitol_trades_website.jpg)
 -
 ### YahooFinance (META Example):
-![YahooFinance](https://github.com/user-attachments/assets/44c0840b-c7fa-47c4-9f09-121f03d2d453)  
+![YahooFinanceMetaExample](screenshots/yahoo_finance_meta_example.jpg)
 -
 ### Workflow Actions GitHub:
-![Workflow Actions GitHub](https://github.com/user-attachments/assets/c1cd4282-d1b0-4ef8-8b7e-e3ae34d5b97e)
+![WorkflowActionsGithub](screenshots/workflow_actions_github.jpg)
 
 ---
 
