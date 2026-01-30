@@ -1,4 +1,4 @@
-# 📈 Capitol Trades Telegram Bot
+# 📈 CapitolTrades Telegram Bot
 
 <sub>🗓️ Developed in August 2025</sup>  
 
