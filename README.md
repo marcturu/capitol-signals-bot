@@ -1,4 +1,4 @@
-# <img src="screenshots/CapitolTrades.png" alt="LetsManage" width="200"/> — Telegram Bot
+# <img src="screenshots/CapitolTrades.png" alt="LetsManage" width="150"/> — Telegram Bot
 
 <sub>🗓️ Developed in August 2025</sup>  
 
