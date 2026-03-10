@@ -27,8 +27,8 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/marcturu/telegram-bot-capitol-trades.git
-cd telegram-bot-capitol-trades
+git clone https://github.com/marcturu/capitol-signals-bot.git
+cd capitol-signals-bot
 ```
 ### 2. Install dependencies
 ```bash
