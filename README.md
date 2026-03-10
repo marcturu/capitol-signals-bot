@@ -1,4 +1,4 @@
-# <img src="screenshots/CapitolTrades.png" alt="LetsManage" width="150"/> — Signals Bot
+# <img src="screenshots/CapitolSignalsBot.png" alt="CapitolSignalsBot" width="150"/> — Daily telegram alerts on politician stock moves
 
 <sub>🗓️ Developed in August 2025</sup>  
 
