@@ -128,8 +128,8 @@ jobs:
 
 ## 📷 Screenshots  
 
-### CapitolTrades Telegram Bot:   
-![CapitolTradesTelegramBot](screenshots/capitol_trades_telegram_bot.jpg)
+### Capitol Signals Bot (Telegram):   
+![CapitolSignalsBot(Telegram)](screenshots/capitol_signals_bot_telegram.png)
 -
 ### CapitolTrades website:  
 ![CapitolTradesWebsite](screenshots/capitol_trades_website.jpg)
