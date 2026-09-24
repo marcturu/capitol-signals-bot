@@ -301,7 +301,7 @@ async def send_alert(trades):
     if message:
         messages.append(message)
 
-    # Enviar todos los mensajes en orden
+    # Send all messages in order
     for msg in messages:
         await application.bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=msg)
 

@@ -30,20 +30,24 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 git clone https://github.com/marcturu/capitol-signals-bot.git
 cd capitol-signals-bot
 ```
+
 ### 2. Install dependencies
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-### 3. Set environment variables  
-Create an `.env` file in the project root with:  
-```ini
-TELEGRAM_TOKEN=your_telegram_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
+
+### 3. Configure the environment
+Create your local `.env` file from the provided example:
+
+```bash
+cp .env.example .env
 ```
-> **Note:**  
-> Get your bot token via _BotFather_.  
-> Get your chat id via _userinfobot_  
+
+On Windows, you can also simply copy `.env.example` and rename the copy to `.env`.
+
+Then, generate a `TELEGRAM_TOKEN` via [**_@BotFather_**](https://telegram.me/BotFather) and a `TELEGRAM_CHAT_ID` via [**_@userinfobot_**](https://telegram.me/userinfobot).
+
 ### 4. Run the script manually  
 ```bash
 python main.py
@@ -101,8 +105,7 @@ jobs:
 
       - name: Install Chrome and ChromeDriver
         run: |
-          sudo apt-get update![Captura de pantalla 2025-08-06 183702](https://github.com/user-attachments/assets/15f9f351-9e3d-4465-96dc-e64e097f06be)
-
+          sudo apt-get update
           sudo apt-get install -y wget unzip
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt install -y ./google-chrome-stable_current_amd64.deb
@@ -139,12 +142,3 @@ jobs:
 -
 ### Workflow Actions GitHub:
 ![WorkflowActionsGithub](screenshots/workflow_actions_github.jpg)
-
----
-
-## ⚖️ Copyright & License
-
-© 2025 Marc Turu Roca. All rights reserved.
-
-This project and its contents are the exclusive intellectual property of Marc Turu Roca.  
-All rights reserved. No part of this project may be copied, modified, distributed, or used without prior written permission from the author.  
