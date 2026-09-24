@@ -1,6 +1,6 @@
 # <img src="screenshots/CapitolSignalsBot.png" alt="CapitolSignalsBot" width="150"/> — Daily politician stock telegram alerts
 
-<sub>🗓️ Developed in August 2025</sup>  
+<sub>🗓️ Developed in August 2025</sub>  
 
 This project scrapes **US politicians' stock trades** from [CapitolTrades](https://www.capitoltrades.com), analyzes the price trend of the traded companies using **moving averages**, and sends a **daily alert on Telegram** with the most relevant opportunities.
 
@@ -25,19 +25,32 @@ This project scrapes **US politicians' stock trades** from [CapitolTrades](https
 
 ## 🛠 Installation & Setup (Local)
 
+### 0. Prerequisites
+- **Python 3.11 – 3.13** (Python 3.14 is not yet supported by some dependencies)
+- **Google Chrome** installed (Selenium uses it; ChromeDriver is downloaded automatically)
+- A Telegram bot token and chat ID
+
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/marcturu/capitol-signals-bot.git
 cd capitol-signals-bot
 ```
 
-### 2. Install dependencies
+### 2. Create a virtual environment and install dependencies
 ```bash
+python -m venv .venv
+
+# Windows (CMD/PowerShell)
+.venv\Scripts\activate
+# Windows (Git Bash) / macOS / Linux
+source .venv/Scripts/activate   # Git Bash
+source .venv/bin/activate       # macOS / Linux
+
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Configure the environment
+### 3. Configure the environment variables
 Create your local `.env` file from the provided example:
 
 ```bash
@@ -75,57 +88,7 @@ This project includes a **GitHub Actions workflow** that runs the script **every
 
    > **Note:**  
    > Create the `.github/workflows/` folder if it doesn't exist,  
-   > then add the `daily.yml` workflow file with the content below.
-
-```yaml
-name: Daily Capitol Trade Alert
-
-on:
-  schedule:
-    - cron: '0 7 * * *'
-  workflow_dispatch:
-
-jobs:
-  run-script:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install Chrome and ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-          # Instalar chromedriver compatible
-          DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-          wget https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-
-      - name: Set CHROME_BIN env
-        run: echo "CHROME_BIN=$(which google-chrome)" >> $GITHUB_ENV
-
-      - name: Run script
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python main.py
-```
+   > then add the [`daily.yml`](https://github.com/marcturu/capitol-signals-bot/blob/main/.github/workflows/daily.yml) workflow file with its content.
 
 ---
 
