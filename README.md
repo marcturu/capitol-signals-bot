@@ -94,7 +94,12 @@ The repository includes a workflow at [`.github/workflows/daily.yml`](https://gi
 1. Go to **Settings → Secrets and variables → Actions → Secrets** and add:
    - `TELEGRAM_TOKEN` → Your Telegram bot token.
    - `TELEGRAM_CHAT_ID` → Your Telegram chat ID.
-2. Choose where it runs:
+2. Uncomment the schedule lines in `daily.yml`:
+   ```yaml
+    # schedule:
+    #   - cron: '0 7 * * *' 
+   ```
+3. Choose where it runs:
    - **GitHub-hosted runner (default, cloud):** nothing else to do.
    - **Self-hosted runner (recommended if you want it to work reliably):** set up a [self-hosted runner](https://docs.github.com/en/actions/hosting-your-own-runners) on a machine that is always on, with Google Chrome installed, then go to **Settings → Secrets and variables → Actions → Variables** and create a variable `RUNNER` with the value `self-hosted`.
 
