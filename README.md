@@ -67,28 +67,39 @@ python main.py
 ```
 
 --- 
-## ⚡ Automate with GitHub Actions (Daily Execution)
+## ⏰ Automate with a daily execution
 
-This project includes a **GitHub Actions workflow** that runs the script **every day at 09:00 CET (7:00 UTC)**.  
-- Runs the script automatically in the cloud (no need to keep your PC on).
-- Installs **Python**, **Google Chrome**, and **ChromeDriver**.
-- Executes the script with secure credentials stored in **GitHub Secrets**.  
+CapitolTrades is protected by Vercel's anti-bot checkpoint, which blocks GitHub-hosted runners (datacenter IPs). For this reason, the recommended way to get daily alerts is to **run the script from your own machine**.
 
-### 📌 Setup Steps:
+### Option 1: Local machine (recommended)
 
-1. **Push your code to your GitHub repository**.
-2. Go to:  
-   **Settings → Secrets and variables → Actions**  
-   and add the following:
+#### Windows (Task Scheduler)
+1. Open **Task Scheduler** → **Create Basic Task...**
+2. **Trigger:** Daily, at the time you prefer.
+3. **Action:** Start a program, with:
+   - **Program/script:** `"C:\path\to\capitol-signals-bot\.venv\Scripts\python.exe"`
+   - **Add arguments:** `main.py`
+   - **Start in:** `C:\path\to\capitol-signals-bot` (no quotes; this is where the `.env` file is read from)
+4. In the task **Properties → Settings**, enable *"Run task as soon as possible after a scheduled start is missed"* so it runs even if the PC was off at the scheduled time.
+
+#### Linux / macOS (cron)
+```bash
+0 9 * * * cd /path/to/capitol-signals-bot && .venv/bin/python main.py
+```
+
+### Option 2: GitHub Actions (experimental)
+
+The repository includes a workflow at [`.github/workflows/daily.yml`](https://github.com/marcturu/capitol-signals-bot/blob/main/.github/workflows/daily.yml) that runs the script every day at 07:00 UTC and can also be launched manually from the **Actions** tab.
+
+1. Go to **Settings → Secrets and variables → Actions → Secrets** and add:
    - `TELEGRAM_TOKEN` → Your Telegram bot token.
-   - `TELEGRAM_CHAT_ID` → Your Telegram chat id.
-3. Make sure the workflow file exists in your repository at:
+   - `TELEGRAM_CHAT_ID` → Your Telegram chat ID.
+2. Choose where it runs:
+   - **GitHub-hosted runner (default, cloud):** nothing else to do.
+   - **Self-hosted runner (recommended if you want it to work reliably):** set up a [self-hosted runner](https://docs.github.com/en/actions/hosting-your-own-runners) on a machine that is always on, with Google Chrome installed, then go to **Settings → Secrets and variables → Actions → Variables** and create a variable `RUNNER` with the value `self-hosted`.
 
-   `.github/workflows/daily.yml`
-
-   > **Note:**  
-   > Create the `.github/workflows/` folder if it doesn't exist,  
-   > then add the [`daily.yml`](https://github.com/marcturu/capitol-signals-bot/blob/main/.github/workflows/daily.yml) workflow file with its content.
+> ⚠️ **Note (28/09/2026):** CapitolTrades is protected by Vercel's anti-bot checkpoint, which currently blocks GitHub-hosted runners (datacenter IPs). In that case the scraping fails and the bot sends a `⚠️ Error: no trades could be scraped` message. The debug screenshot is available in the run's artifacts.  
+> For a reliable daily alert, use **Option 1** or a **self-hosted runner**.
 
 ---
 
