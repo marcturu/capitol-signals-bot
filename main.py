@@ -90,14 +90,13 @@ def parse_pub_date(pub_date_raw):
 # Iterates through multiple pages, extracts trade info, and returns it as a pandas DataFrame.
 def get_trades_selenium(pages=5):
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--remote-debugging-port=9222")
-    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--window-size=1920,1080")
     chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
@@ -111,7 +110,7 @@ def get_trades_selenium(pages=5):
             url = f"https://www.capitoltrades.com/trades?sortBy=-txDate&page={page_num}"
             driver.get(url)
 
-            rows = WebDriverWait(driver, 15).until(
+            rows = WebDriverWait(driver, 45).until(
                 EC.presence_of_all_elements_located((By.CSS_SELECTOR, "tr.border-b.h-14.border-primary-15"))
             )
 
@@ -153,11 +152,10 @@ def get_trades_selenium(pages=5):
       try:
           print("Page title:", driver.title)
           print("URL:", driver.current_url)
-          print("HTML (first 1000 chars):", driver.page_source[:1000])
           driver.save_screenshot("debug.png")
       except Exception as dbg:
           print("Could not collect debug info:", dbg)
-      return pd.DataFrame(columns=[...])
+      return pd.DataFrame(columns=['Date', 'PublicationDate', 'Politician', 'Company', 'Amount', 'Type', 'Ticker'])
 
     finally:
         try:
@@ -318,6 +316,14 @@ async def send_alert(trades):
 
 async def main():
     df = get_trades_selenium()
+
+    if df.empty:
+      await application.bot.send_message(
+          chat_id=TELEGRAM_CHAT_ID,
+          text="⚠️ Error: no trades could be scraped from Capitol Trades."
+      )
+      return
+
     print("Extracted data:")
     print(df.head())
 
