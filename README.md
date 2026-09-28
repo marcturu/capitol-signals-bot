@@ -69,6 +69,8 @@ python main.py
 --- 
 ## ⏰ Automate with a daily execution
 
+> **Before you start:** complete the [Installation & Setup](#-installation--setup-local) steps above (virtual environment, dependencies and `.env` file) and check that `python main.py` works and you receive the Telegram message. The scheduled task relies on the `.venv` and `.env` files in the project folder.
+
 CapitolTrades is protected by Vercel's anti-bot checkpoint, which blocks GitHub-hosted runners (datacenter IPs). For this reason, the recommended way to get daily alerts is to **run the script from your own machine**.
 
 ### Option 1: Local machine (recommended)
