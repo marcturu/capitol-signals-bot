@@ -97,6 +97,10 @@ def get_trades_selenium(pages=5):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--remote-debugging-port=9222")
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
     all_trades = []
 
@@ -145,8 +149,15 @@ def get_trades_selenium(pages=5):
         return df
 
     except WebDriverException as e:
-        print(f"Selenium error: {e}")
-        return pd.DataFrame(columns=['Date', 'PublicationDate', 'Politician', 'Company', 'Amount', 'Type', 'Ticker'])
+      print(f"Selenium error ({type(e).__name__}): {e}")
+      try:
+          print("Page title:", driver.title)
+          print("URL:", driver.current_url)
+          print("HTML (first 1000 chars):", driver.page_source[:1000])
+          driver.save_screenshot("debug.png")
+      except Exception as dbg:
+          print("Could not collect debug info:", dbg)
+      return pd.DataFrame(columns=[...])
 
     finally:
         try:
