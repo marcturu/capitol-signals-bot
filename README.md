@@ -1,4 +1,4 @@
-# <img src="screenshots/CapitolSignalsBot.png" alt="CapitolSignalsBot" width="150"/> — Automated politician stock trade Telegram alerts
+# <img src="screenshots/CapitolSignalsBot.png" alt="CapitolSignalsBot" width="150"/> — Automated politician stock Telegram alerts
 
 <sub>🗓️ Developed in August 2025</sub>  
 
